@@ -1,0 +1,71 @@
+---
+instance_groups:
+  - name: gracious-raman
+    consul_address: 172.16.2.0/16
+    floating_address: 172.16.3.0/16
+    host: romantic-fermat
+
+  - name: upbeat-cray
+    consul_address: 172.16.2.1/16
+    floating_address: 172.16.3.1/16
+    host: romantic-fermat
+
+  - name: gracious-brahmagupta
+    consul_address: 172.16.2.2/16
+    floating_address: 172.16.3.2/16
+    host: romantic-fermat
+
+  - name: cool-bardeen
+    consul_address: 172.16.2.3/16
+    floating_address: 172.16.3.3/16
+    host: romantic-fermat
+
+  - name: trusting-taussig
+    consul_address: 172.16.2.4/16
+    floating_address: 172.16.3.4/16
+    host: romantic-fermat
+
+  - name: musing-ellis
+    consul_address: 172.16.2.5/16
+    floating_address: 172.16.3.5/16
+    host: compassionate-tereshkova
+
+  - name: frosty-bouman
+    consul_address: 172.16.2.6/16
+    floating_address: 172.16.3.6/16
+    host: compassionate-tereshkova
+
+  - name: musing-merkle
+    consul_address: 172.16.2.7/16
+    floating_address: 172.16.3.7/16
+    host: compassionate-tereshkova
+
+  - name: agitated-yonath
+    consul_address: 172.16.2.8/16
+    floating_address: 172.16.3.8/16
+    host: compassionate-tereshkova
+
+  - name: quizzical-tesla
+    consul_address: 172.16.2.9/16
+    floating_address: 172.16.3.9/16
+    host: compassionate-tereshkova
+
+  - name: compassionate-lamport
+    consul_address: 172.16.2.10/16
+    floating_address: 172.16.3.10/16
+    host: angry-snyder
+
+  - name: competent-lichterman
+    consul_address: 172.16.2.11/16
+    floating_address: 172.16.3.11/16
+    host: angry-snyder
+
+  - name: eloquent-payne
+    consul_address: 172.16.2.12/16
+    floating_address: 172.16.3.12/16
+    host: angry-snyder
+
+  - name: unruffled-bose
+    consul_address: 172.16.2.13/16
+    floating_address: 172.16.3.13/16
+    host: angry-snyder

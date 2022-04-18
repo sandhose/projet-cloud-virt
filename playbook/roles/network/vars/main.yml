@@ -1,0 +1,2 @@
+---
+vxlan_extra_addresses: '{{ instance_groups | selectattr("host", "defined") | selectattr("host", "==", inventory_hostname) | map(attribute="consul_address") }}'

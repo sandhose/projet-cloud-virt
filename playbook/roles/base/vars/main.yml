@@ -1,0 +1,7 @@
+---
+consul_version: 1.11.5
+nomad_version: 1.2.6
+compose_version: 2.4.1
+compose_switch_version: 1.0.4
+minio_version: 2022-04-16T04-26-02Z
+mc_version: 2022-04-16T21-11-21Z

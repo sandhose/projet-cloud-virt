@@ -1,0 +1,39 @@
+{{ ansible_managed | comment }}
+
+tunnel: {{ cloudflared_tunnel_uuid }}
+credentials-file: /etc/cloudflared/{{ cloudflared_tunnel_uuid }}.json
+
+warp-routing:
+  enabled: true
+
+ingress:
+  # Groups
+{% for instance in instance_groups %}
+  - hostname: "consul-{{ instance.name }}.100do.se"
+    service: "http://{{ instance.consul_address | ansible.netcommon.ipaddr('address') }}:8500"
+  - hostname: "nomad-{{ instance.name }}.100do.se"
+    service: "http://{{ instance.consul_address | ansible.netcommon.ipaddr('address') }}:4646"
+  - hostname: "{{ instance.name }}.100do.se"
+    service: "http://{{ instance.floating_address | ansible.netcommon.ipaddr('address') }}:8081"
+  - hostname: "*.{{ instance.name }}.100do.se"
+    service: "http://{{ instance.floating_address | ansible.netcommon.ipaddr('address') }}:8081"
+
+{% endfor %}
+  
+  # Hosts
+{% for item in groups['all'] %}
+  - hostname: "{{ item }}.100do.se"
+    service: "http://{{ item }}:8080"
+  - hostname: "*.{{ item }}.100do.se"
+    service: "http://{{ item }}:8080"
+
+{% endfor %}
+
+  - hostname: "s3.100do.se"
+    service: "http://{{ groups['storage'][0] }}:9000"
+  - hostname: "s3-console.100do.se"
+    service: "http://{{ groups['storage'][0] }}:9001"
+  - hostname: "queue.100do.se"
+    service: "http://{{ groups['queue'][0] }}:15672"
+
+  - service: "http_status:404"

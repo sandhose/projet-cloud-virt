@@ -1,0 +1,17 @@
+---
+- name: "Create Nomad configuration directory"
+  ansible.builtin.file:
+    path: /etc/nomad.d/
+    state: directory
+
+- name: "Deploy Nomad systemd service"
+  ansible.builtin.copy:
+    src: nomad.service
+    dest: /etc/systemd/system/nomad.service
+  notify: Reload systemd
+
+- name: "Enable and start Nomad"
+  ansible.builtin.systemd:
+    name: nomad.service
+    enabled: true
+    state: started

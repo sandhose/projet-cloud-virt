@@ -1,0 +1,13 @@
+{{ ansible_managed | comment }}
+
+[Match]
+Name={{ vxlan_interface_name }}
+
+[Network]
+Address={{ vxlan_interface_address }}
+{% for address in vxlan_extra_addresses -%}
+Address={{ address }}
+{% endfor -%}
+LLDP=true
+EmitLLDP=true
+Domains=internal.100do.se

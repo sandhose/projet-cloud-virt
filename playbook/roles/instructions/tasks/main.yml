@@ -1,0 +1,59 @@
+---
+- name: Ensure the local configuration folder exists
+  ansible.builtin.file:
+    path: ./instructions
+    state: directory
+
+- name: Render test script
+  ansible.builtin.template:
+    src: test-all.sh
+    dest: ./instructions/test-all.sh
+  vars:
+    instances: '{{ instance_groups | map(attribute="name") }}'
+
+- name: Render DNS zone
+  ansible.builtin.template:
+    src: zone
+    dest: ./instructions/zone
+  vars:
+    instances: '{{ instance_groups | map(attribute="name") }}'
+
+- name: Ensure the local per-host configuration folder exists
+  ansible.builtin.file:
+    path: ./instructions/per-host
+    state: directory
+
+- name: Ensure a configuration folder exists for each host
+  ansible.builtin.file:
+    path: "./instructions/per-host/{{ item }}"
+    state: directory
+  loop: "{{ groups['all'] }}"
+
+- name: Generate a keypair for each host
+  community.crypto.openssh_keypair:
+    path: ./instructions/per-host/{{ item }}/id_ecdsa
+    type: "ecdsa"
+    comment: "ubuntu@{{ item }}"
+  loop: "{{ groups['all'] }}"
+
+- name: Render instructions for each host
+  ansible.builtin.template:
+    src: per-host.md
+    dest: ./instructions/per-host/{{ item }}/mail.md
+  loop: "{{ groups['all'] }}"
+
+- name: Render bastion authorized_keys
+  ansible.builtin.template:
+    src: authorized_keys
+    dest: ./instructions/authorized_keys
+
+- name: Ensure the local per-group configuration folder exists
+  ansible.builtin.file:
+    path: ./instructions/per-group
+    state: directory
+
+- name: Render instructions for each group
+  ansible.builtin.template:
+    src: per-group.md
+    dest: ./instructions/per-group/{{ item.name }}.md
+  loop: "{{ instance_groups }}"

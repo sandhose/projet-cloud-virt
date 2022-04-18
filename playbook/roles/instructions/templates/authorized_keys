@@ -1,0 +1,3 @@
+{% for host in groups['all'] %}
+{{ lookup('file', 'instructions/per-host/' + host + '/id_ecdsa.pub') }}
+{% endfor %}

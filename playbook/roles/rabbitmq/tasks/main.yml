@@ -1,0 +1,52 @@
+---
+- name: "Install RabbitMQ"
+  ansible.builtin.apt:
+    state: present
+    name:
+      - erlang-base
+      - erlang-asn1
+      - erlang-crypto
+      - erlang-eldap
+      - erlang-ftp
+      - erlang-inets
+      - erlang-mnesia
+      - erlang-os-mon
+      - erlang-parsetools
+      - erlang-public-key
+      - erlang-runtime-tools
+      - erlang-snmp
+      - erlang-ssl
+      - erlang-syntax-tools
+      - erlang-tftp
+      - erlang-tools
+      - erlang-xmerl
+      - rabbitmq-server
+
+- name: "Enable management plugin"
+  community.rabbitmq.rabbitmq_plugin:
+    state: enabled
+    name: rabbitmq_management
+
+- name: "Create a vhost for each group"
+  community.rabbitmq.rabbitmq_vhost:
+    name: "{{ item.name }}"
+  loop: "{{ instance_groups }}"
+
+- name: "Construct the permissions list for datadog user"
+  ansible.builtin.set_fact:
+    permissions: '{{ permissions | default([]) + [{"vhost": item.name, "configure_priv": "^aliveness-test$", "write_priv": "^amq\.default$", "read_priv": ".*"}] }}'
+  with_items: "{{ instance_groups + [{'name': '/'}] }}"
+
+- name: "Create a user for datadog"
+  community.rabbitmq.rabbitmq_user:
+    user: "datadog"
+    password: "datadog"
+    state: present
+    tags: monitoring
+    permissions: "{{ permissions }}"
+
+- name: "Deploy datadog configuration"
+  ansible.builtin.copy:
+    src: datadog-conf.yaml
+    dest: /etc/datadog-agent/conf.d/rabbitmq.d/conf.yaml
+  notify: Restart datadog-agent

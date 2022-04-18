@@ -1,0 +1,33 @@
+---
+- name: "Add group 'minio'"
+  ansible.builtin.group:
+    name: minio
+    state: present
+
+- name: "Add user 'minio'"
+  ansible.builtin.user:
+    name: minio
+    group: minio
+    home: /opt/minio
+    create_home: true
+    system: true
+    shell: /bin/false
+    state: present
+
+- name: "Deploy Minio systemd service"
+  ansible.builtin.copy:
+    src: minio.service
+    dest: /etc/systemd/system/minio.service
+  notify: Reload systemd
+
+- name: "Deploy Minio environment variables"
+  ansible.builtin.template:
+    src: env
+    dest: /etc/default/minio
+  notify: Restart minio
+
+- name: "Enable and start Minio"
+  ansible.builtin.systemd:
+    name: minio.service
+    enabled: true
+    state: started
