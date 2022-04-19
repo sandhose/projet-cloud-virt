@@ -2,7 +2,7 @@
 
 Ce projet a pour but de déployer une application fournie de la manière la plus automatisée et résiliante possible.
 L'application permet à ses utilisateurs d'héberger des images, en les redimensionnant au passage dans différentes tailles.
-Le projet est à effectuer en binôme.
+Le projet est à réaliser en binôme.
 
 # Détails de l'application
 
@@ -66,10 +66,12 @@ Host bastion-cloud
 Host <nom-de-la-vm-1>
 	Hostname 192.168.70.<vm-1>
 	User ubuntu
+	ProxyJump bastion-cloud
 
 Host <nom-de-la-vm-2>
 	Hostname 192.168.70.<vm-2>
 	User ubuntu
+	ProxyJump bastion-cloud
 ```
 
 Par exemple, si vous avez les machines virtuelles `eager-franklin` et `awesome-boyd` :
@@ -134,7 +136,7 @@ où `<username>` et `<password>` sont les identifiants fournis par votre fournis
 
 ## Stockage S3
 
-Votre fournisseur *Cloud* vous donne accès à une instance de Minio, un service de stockage compatible S3.
+Votre fournisseur *Cloud* vous donne accès à une instance de [Minio](http://min.io), un service de stockage compatible S3.
 Il est accessible sur <https://s3.100do.se>.
 Cette instance est commune à tous les groupes, mais chaque groupe a accès à plusieurs *buckets*.
 
@@ -142,7 +144,7 @@ Chaque groupe a une paire d'identifiants (*access key id* et *secret access key*
 
 ## Consul et Nomad
 
-Votre fournisseur *Cloud* héberge pour chaque binôme un *cluster* Consul et un *cluster* Nomad.
+Votre fournisseur *Cloud* héberge pour chaque binôme un *cluster* [Consul](https://learn.hashicorp.com/tutorials/consul/get-started?in=consul/getting-started#architecture-overview) et un *cluster* [Nomad](https://learn.hashicorp.com/tutorials/nomad/get-started-intro?in=nomad/get-started).
 
 Ils sont accessibles sous :
 
