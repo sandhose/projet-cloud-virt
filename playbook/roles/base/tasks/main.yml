@@ -12,6 +12,12 @@
     key: "{{ item }}"
   loop: "{{ additional_authorized_keys }}"
 
+- name: "Create cache directory"
+  ansible.builtin.file:
+    path: "{{ cache_dir }}"
+    state: directory
+    mode: "0755"
+
 - name: "Remove stock private key"
   ansible.builtin.file:
     path: '/home/{{ ansible_user }}/private.pem'
@@ -38,7 +44,6 @@
 - name: "Disable fwupd-refresh.service"
   ansible.builtin.systemd:
     name: fwupd-refresh.service
-    enabled: no
     state: stopped
 
 - name: "Disable fwupd-refresh.timer"
@@ -72,7 +77,7 @@
 
 - name: "Add Cloudflare's repository to APT sources list"
   ansible.builtin.apt_repository:
-    repo: "deb [arch={{ architecture_map[ansible_architecture] }} signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/ {{ ansible_distribution_release }} main"
+    repo: "deb [arch={{ architecture_map[ansible_architecture] }} signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared {{ ansible_distribution_release }} main"
     state: present
 
 - name: "Add Docker's official GPG key to apt"
@@ -126,29 +131,53 @@
       - docker-ce
       - docker-ce-cli
       - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
       - cloudflared
 
-- name: "Create the Docker CLI plugins directory"
-  ansible.builtin.file:
-    path: /usr/local/lib/docker/cli-plugins
-    state: directory
-    mode: "0755"
-
-- name: "Install Docker Compose CLI plugin"
-  ansible.builtin.get_url:
-    url: "https://github.com/docker/compose/releases/download/v{{ compose_version }}/docker-compose-{{ ansible_system | lower }}-{{ ansible_architecture }}"
-    dest: /usr/local/lib/docker/cli-plugins/docker-compose
-    mode: "0755"
-
-- name: "Install compose-switch"
+- name: "Download compose-switch to cache directory"
   ansible.builtin.get_url:
     url: "https://github.com/docker/compose-switch/releases/download/v{{ compose_switch_version }}/docker-compose-{{ ansible_system | lower }}-{{ architecture_map[ansible_architecture] }}"
+    dest: "{{ cache_dir }}/compose-switch_{{ compose_switch_version }}_{{ ansible_system | lower }}_{{ architecture_map[ansible_architecture] }}"
+
+- name: "Download Consul to cache directory"
+  ansible.builtin.get_url:
+    url: "https://releases.hashicorp.com/consul/{{ consul_version }}/consul_{{ consul_version }}_{{ ansible_system | lower }}_{{ architecture_map[ansible_architecture] }}.zip"
+    dest: "{{ cache_dir }}/consul_{{ consul_version }}_{{ ansible_system | lower }}_{{ architecture_map[ansible_architecture] }}.zip"
+
+- name: "Download Nomad to cache directory"
+  ansible.builtin.get_url:
+    url: "https://releases.hashicorp.com/nomad/{{ nomad_version }}/nomad_{{ nomad_version }}_{{ ansible_system | lower }}_{{ architecture_map[ansible_architecture] }}.zip"
+    dest: "{{ cache_dir }}/nomad_{{ nomad_version }}_{{ ansible_system | lower }}_{{ architecture_map[ansible_architecture] }}.zip"
+
+- name: "Download minio to cache directory"
+  ansible.builtin.get_url:
+    url: https://dl.min.io/server/minio/release/{{ ansible_system | lower }}-{{ architecture_map[ansible_architecture] }}/archive/minio.RELEASE.{{ minio_version }}
+    checksum: sha256:https://dl.min.io/server/minio/release/{{ ansible_system | lower }}-{{ architecture_map[ansible_architecture] }}/archive/minio.RELEASE.{{ minio_version }}.sha256sum
+    dest: "{{ cache_dir }}/minio_{{ minio_version }}_{{ ansible_system | lower }}_{{ architecture_map[ansible_architecture] }}"
+
+- name: "Download mc to cache directory"
+  ansible.builtin.get_url:
+    url: https://dl.min.io/client/mc/release/{{ ansible_system | lower }}-{{ architecture_map[ansible_architecture] }}/archive/mc.RELEASE.{{ mc_version }}
+    checksum: sha256:https://dl.min.io/client/mc/release/{{ ansible_system | lower }}-{{ architecture_map[ansible_architecture] }}/archive/mc.RELEASE.{{ mc_version }}.sha256sum
+    dest: "{{ cache_dir }}/mc_{{ mc_version }}_{{ ansible_system | lower }}_{{ architecture_map[ansible_architecture] }}"
+
+- name: "Download the CNI plugins to cache directory"
+  ansible.builtin.get_url:
+    url: https://github.com/containernetworking/plugins/releases/download/v{{ cni_plugins_version }}/cni-plugins-{{ ansible_system | lower }}-{{ architecture_map[ansible_architecture] }}-v{{ cni_plugins_version }}.tgz
+    checksum: sha256:https://github.com/containernetworking/plugins/releases/download/v{{ cni_plugins_version }}/cni-plugins-{{ ansible_system | lower }}-{{ architecture_map[ansible_architecture] }}-v{{ cni_plugins_version }}.tgz.sha256
+    dest: "{{ cache_dir }}/cni-plugins_{{ cni_plugins_version }}_{{ ansible_system | lower }}_{{ architecture_map[ansible_architecture] }}.tgz"
+
+- name: "Install compose-switch from cache"
+  ansible.builtin.copy:
+    src: "{{ cache_dir }}/compose-switch_{{ compose_switch_version }}_{{ ansible_system | lower }}_{{ architecture_map[ansible_architecture] }}"
     dest: /usr/local/bin/docker-compose
     mode: "0755"
+    remote_src: yes
 
-- name: "Download and install Consul"
+- name: "Install Consul from cache"
   ansible.builtin.unarchive:
-    src: "https://releases.hashicorp.com/consul/{{ consul_version }}/consul_{{ consul_version }}_{{ ansible_system | lower }}_{{ architecture_map[ansible_architecture] }}.zip"
+    src: "{{ cache_dir }}/consul_{{ consul_version }}_{{ ansible_system | lower }}_{{ architecture_map[ansible_architecture] }}.zip"
     dest: /usr/local/bin
     remote_src: yes
 
@@ -158,25 +187,37 @@
     capability: cap_net_bind_service+ep
     state: present
 
-- name: "Download and install Nomad"
+- name: "Install Nomad from cache"
   ansible.builtin.unarchive:
-    src: "https://releases.hashicorp.com/nomad/{{ nomad_version }}/nomad_{{ nomad_version }}_{{ ansible_system | lower }}_{{ architecture_map[ansible_architecture] }}.zip"
+    src: "{{ cache_dir }}/nomad_{{ nomad_version }}_{{ ansible_system | lower }}_{{ architecture_map[ansible_architecture] }}.zip"
     dest: /usr/local/bin
     remote_src: yes
 
-- name: "Download and install Minio"
-  ansible.builtin.get_url:
-    url: https://dl.min.io/server/minio/release/{{ ansible_system | lower }}-{{ architecture_map[ansible_architecture] }}/minio.RELEASE.{{ minio_version }}
-    checksum: sha256:https://dl.min.io/server/minio/release/{{ ansible_system | lower }}-{{ architecture_map[ansible_architecture] }}/minio.RELEASE.{{ minio_version }}.sha256sum
+- name: "Install minio from cache"
+  ansible.builtin.copy:
+    src: "{{ cache_dir }}/minio_{{ minio_version }}_{{ ansible_system | lower }}_{{ architecture_map[ansible_architecture] }}"
     dest: /usr/local/bin/minio
     mode: "0755"
+    remote_src: yes
 
-- name: "Download and install mc"
-  ansible.builtin.get_url:
-    url: https://dl.min.io/client/mc/release/{{ ansible_system | lower }}-{{ architecture_map[ansible_architecture] }}/mc.RELEASE.{{ mc_version }}
-    checksum: sha256:https://dl.min.io/client/mc/release/{{ ansible_system | lower }}-{{ architecture_map[ansible_architecture] }}/mc.RELEASE.{{ mc_version }}.sha256sum
+- name: "Install mc from cache"
+  ansible.builtin.copy:
+    src: "{{ cache_dir }}/mc_{{ mc_version }}_{{ ansible_system | lower }}_{{ architecture_map[ansible_architecture] }}"
     dest: /usr/local/bin/mc
     mode: "0755"
+    remote_src: yes
+
+- name: "Create CNI plugins directory"
+  ansible.builtin.file:
+    path: "/opt/cni/bin"
+    state: directory
+    recurse: yes
+
+- name: "Install the CNI plugins from cache"
+  ansible.builtin.unarchive:
+    src: "{{ cache_dir }}/cni-plugins_{{ cni_plugins_version }}_{{ ansible_system | lower }}_{{ architecture_map[ansible_architecture] }}.tgz"
+    dest: "/opt/cni/bin"
+    remote_src: yes
 
 - name: "Remove old apt packages"
   ansible.builtin.apt:

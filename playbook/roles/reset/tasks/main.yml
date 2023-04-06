@@ -21,7 +21,7 @@
     name: python3-pip
     state: present
 
-- name: "Instal Docker Python SDK"
+- name: "Install Docker Python SDK"
   ansible.builtin.pip:
     name: docker
     version: "5.0.3"
@@ -59,8 +59,8 @@
   ansible.builtin.file:
     path: /opt/nomad
     state: directory
-    owner: root
-    group: root
+    owner: nomad
+    group: nomad
 
 - name: "Delete Consul state directory"
   ansible.builtin.file:

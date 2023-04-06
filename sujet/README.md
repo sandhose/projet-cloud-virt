@@ -29,7 +29,8 @@ Vous trouverez dans ce dépôt :
  - le code du *backend* et du *worker* dans le sous-dossier `api/`
  - le code du *frontend* dans le sous-dossier `web/`
  - ce sujet dans le sous-dossier `sujet/`
- - (pour information) le *playbook* [Ansible](https://docs.ansible.com/ansible/latest/index.html) utilisé pour provisionner l'infrastructure de votre fournisseur *Cloud* dans le sous-dossier `playbook/`
+ - (pour information) le *playbook* [Ansible](https://docs.ansible.com/ansible/latest/index.html) utilisé pour provisionner les machines virtuelles fournies par votre fournisseur *Cloud* dans le sous-dossier `playbook/`
+ - (pour information) le projet [Terraform](https://www.terraform.io) utilisé pour provisionner différentes resources de votre fournisseur *Cloud* dans le sous-dossier `terraform/`
 
 Chacun de ces sous-dossier a un fichier `README.md` expliquant certains détails de leur fonctionnement.
 
@@ -49,18 +50,18 @@ Votre fournisseur *Cloud* vous fournit, pour chaque binôme :
 
 Les machines virtuelles sont accessibles par SSH via un hôte bastion, accessible depuis le réseau de l'université, donc connecté au wifi de l'université ou via le VPN : <https://documentation.unistra.fr/Catalogue/Infrastructures-reseau/osiris/VPN/co/guide.html>
 
-Le bastion est accessible par SSH à `student@185.155.93.175`.
+Le bastion est accessible par SSH à `student@185.155.93.67`.
 Vous devriez pouvoir accéder à votre machine virtuelle par SSH de cette manière :
 
 ```sh
-ssh -J student@185.155.93.175 ubuntu@192.168.70.XXX
+ssh -J student@185.155.93.67 ubuntu@192.168.70.XXX
 ```
 
 Pour simplifier l'accès, vous pouvez ajouter à votre fichier de configuration SSH (`~/.ssh/config`) la section suivante:
 
 ```sshconfig
 Host bastion-cloud
-	Hostname 185.155.93.175
+	Hostname 185.155.93.67
 	User student
 
 Host <nom-de-la-vm-1>
@@ -70,24 +71,6 @@ Host <nom-de-la-vm-1>
 
 Host <nom-de-la-vm-2>
 	Hostname 192.168.70.<vm-2>
-	User ubuntu
-	ProxyJump bastion-cloud
-```
-
-Par exemple, si vous avez les machines virtuelles `eager-franklin` et `awesome-boyd` :
-
-```sshconfig
-Host bastion-cloud
-	Hostname 185.155.93.175
-	User student
-
-Host eager-franklin
-	Hostname 192.168.70.100
-	User ubuntu
-	ProxyJump bastion-cloud
-
-Host awesome-boyd
-	Hostname 192.168.70.101
 	User ubuntu
 	ProxyJump bastion-cloud
 ```
@@ -116,9 +99,9 @@ Votre fournisseur de *Cloud* a mis en place des proxy HTTP(S) vers votre IP flot
 Ainsi :
 
  - `https://<vm>.100do.se/` et `http://*.<vm>.100do.se/` transmet le traffic vers l'IP de la machine virtuelle sur le port `8080`.
-   Par exemple, `https://eager-franklin.100do.se/` proxy vers `http://172.16.1.0:8080/`.
+   Par exemple, `https://bohrie.100do.se/` proxy vers `http://172.16.1.3:8080/`.
  - `https://<groupe>.100do.se/` et `http://*.<groupe>.100do.se/` transmet le traffic vers l'IP flottante du groupe sur le port `8081`.
-   Par exemple, `https://gracious-raman.100do.se/` proxy vers `http://172.16.3.0:8081/`.
+   Par exemple, `https://astride-briand.100do.se/` proxy vers `http://172.16.3.0:8081/`.
 
 ## File de message
 
@@ -129,7 +112,7 @@ Cette instance est commune à tous les groupes, mais chaque groupe a accès à u
 En interne, la file est accessible via le protocole AMQP :
 
 ```
-amqp://<username>:<password>@awesome-boyd.internal.100do.se:5672/<vhost>
+amqp://<username>:<password>@queue.internal.100do.se:5672/<vhost>
 ```
 
 où `<username>` et `<password>` sont les identifiants fournis par votre fournisseur cloud, et `<vhost>` est le nom assigné à votre binôme.
@@ -138,7 +121,7 @@ où `<username>` et `<password>` sont les identifiants fournis par votre fournis
 
 Votre fournisseur *Cloud* vous donne accès à une instance de [Minio](http://min.io), un service de stockage compatible S3.
 Il est accessible sur <https://s3.100do.se>.
-Cette instance est commune à tous les groupes, mais chaque groupe a accès à plusieurs *buckets*.
+Cette instance est commune à tous les groupes, mais chaque groupe a accès à un *bucket* dédié.
 
 Chaque groupe a une paire d'identifiants (*access key id* et *secret access key*) ayant accès à leurs *buckets*.
 

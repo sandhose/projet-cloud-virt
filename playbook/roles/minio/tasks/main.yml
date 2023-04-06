@@ -31,3 +31,30 @@
     name: minio.service
     enabled: true
     state: started
+
+- name: "Install python3-pip"
+  ansible.builtin.apt:
+    name: python3-pip
+    state: present
+
+- name: "Instal boto3"
+  ansible.builtin.pip:
+    name: boto3
+    version: "1.21.43"
+    state: present
+
+- name: "Instal botocore"
+  ansible.builtin.pip:
+    name: botocore
+    version: "1.21.43"
+    state: present
+
+- name: "Create bucket for each group"
+  amazon.aws.s3_bucket:
+    name: "{{ item.name }}"
+    state: "present"
+    aws_access_key: minioadmin
+    aws_secret_key: minioadmin
+    s3_url: "http://localhost:9000"
+    aws_config: { signature_version: "s3v4" }
+  loop: "{{ instance_groups }}"

@@ -1,4 +1,5 @@
 import enum
+import random
 from io import BytesIO
 from PIL import Image
 from celery import Celery

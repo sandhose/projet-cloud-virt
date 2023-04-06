@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import { useContext, useState } from "react";
 import { FileWithPath } from "react-dropzone";
-import { useQuery } from "react-query";
+import { useQuery } from "@tanstack/react-query";
 import ConfigContext from "./ConfigContext";
 
 type Props = {

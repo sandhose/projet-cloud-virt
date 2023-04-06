@@ -4,17 +4,17 @@
     path: ./instructions
     state: directory
 
+- name: Render ssh-config
+  ansible.builtin.template:
+    src: ssh-config
+    dest: ./instructions/ssh-config
+  vars:
+    instances: '{{ instance_groups | map(attribute="name") }}'
+
 - name: Render test script
   ansible.builtin.template:
     src: test-all.sh
     dest: ./instructions/test-all.sh
-  vars:
-    instances: '{{ instance_groups | map(attribute="name") }}'
-
-- name: Render DNS zone
-  ansible.builtin.template:
-    src: zone
-    dest: ./instructions/zone
   vars:
     instances: '{{ instance_groups | map(attribute="name") }}'
 
@@ -40,6 +40,7 @@
   ansible.builtin.template:
     src: per-host.md
     dest: ./instructions/per-host/{{ item }}/mail.md
+  when: "{{ hostvars[item].assigned_to is defined }}"
   loop: "{{ groups['all'] }}"
 
 - name: Render bastion authorized_keys
@@ -52,8 +53,21 @@
     path: ./instructions/per-group
     state: directory
 
+- name: Ensure a configuration folder exists for each group
+  ansible.builtin.file:
+    path: ./instructions/per-group/{{ item.name }}
+    state: directory
+  loop: "{{ instance_groups }}"
+
 - name: Render instructions for each group
   ansible.builtin.template:
     src: per-group.md
-    dest: ./instructions/per-group/{{ item.name }}.md
+    dest: ./instructions/per-group/{{ item.name }}/mail.txt
   loop: "{{ instance_groups }}"
+
+- name: Render minio admin script
+  ansible.builtin.template:
+    src: minio-admin.sh
+    dest: ./instructions/minio-admin.sh
+  vars:
+    instances: '{{ instance_groups | map(attribute="name") }}'

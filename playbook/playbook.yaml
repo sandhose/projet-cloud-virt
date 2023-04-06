@@ -30,16 +30,6 @@
   roles:
     - role: tunnel
 
-- hosts: primary
-  tags: ["primary"]
-  handlers:
-    - name: Reload systemd
-      ansible.builtin.systemd:
-        daemon_reload: true
-  roles:
-    - role: multi-consul
-    - role: multi-nomad
-
 - hosts: storage
   tags: ["minio"]
   handlers:
@@ -57,45 +47,3 @@
         daemon_reload: true
   roles:
     - role: rabbitmq
-
-- hosts:
-    - queue
-    - storage
-    - gateway
-    - primary
-  tags: ["datadog"]
-  roles:
-    - role: datadog.datadog
-    - role: datadog-conf
-  vars:
-    datadog_config:
-      log_level: INFO
-      logs_enabled: true
-      process_config:
-        enabled: "true"
-
-    system_probe_config:
-      sysprobe_socket: /opt/datadog-agent/run/sysprobe.sock
-
-    network_config:
-      enabled: true
-
-    runtime_security_config:
-      enabled: true
-
-    datadog_additional_groups:
-      - systemd-journal
-      - docker
-      - adm
-
-    datadog_checks:
-      docker:
-        init_config:
-
-        instances:
-          - url: "unix://var/run/docker.sock"
-            new_tag_names: true
-
-      journald:
-        logs:
-          - type: journald

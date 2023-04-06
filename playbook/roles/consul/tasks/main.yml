@@ -27,6 +27,9 @@
     dest: /etc/systemd/system/consul.service
   notify: Reload systemd
 
+- include_tasks: server.yml
+  when: is_server
+
 - name: "Enable and start Consul"
   ansible.builtin.systemd:
     name: consul.service

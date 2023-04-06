@@ -32,21 +32,14 @@
     name: "{{ item.name }}"
   loop: "{{ instance_groups }}"
 
-- name: "Construct the permissions list for datadog user"
-  ansible.builtin.set_fact:
-    permissions: '{{ permissions | default([]) + [{"vhost": item.name, "configure_priv": "^aliveness-test$", "write_priv": "^amq\.default$", "read_priv": ".*"}] }}'
-  with_items: "{{ instance_groups + [{'name': '/'}] }}"
-
-- name: "Create a user for datadog"
+- name: "Create a user for each group"
   community.rabbitmq.rabbitmq_user:
-    user: "datadog"
-    password: "datadog"
+    user: "{{ item.name }}"
+    password: '{{ lookup("file", "./instructions/per-group/" + item.name + "/queue") }}'
     state: present
-    tags: monitoring
-    permissions: "{{ permissions }}"
-
-- name: "Deploy datadog configuration"
-  ansible.builtin.copy:
-    src: datadog-conf.yaml
-    dest: /etc/datadog-agent/conf.d/rabbitmq.d/conf.yaml
-  notify: Restart datadog-agent
+    tags: policymaker
+    vhost: "{{ item.name }}"
+    configure_priv: .*
+    read_priv: .*
+    write_priv: .*
+  loop: "{{ instance_groups }}"

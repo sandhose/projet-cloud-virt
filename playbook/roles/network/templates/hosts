@@ -12,10 +12,5 @@ ff02::3 ip6-allhosts
 
 # VMs
 {% for item in groups['all'] -%}
-{{ hostvars[item].vxlan_interface_address | ansible.netcommon.ipaddr('address') }}	{{ item }}
-{% endfor %}
-
-# Services
-{% for item in instance_groups -%}
-{{ item.consul_address | ansible.netcommon.ipaddr('address') }} {{ item.name }}
+{{ hostvars[item].vxlan_interface_address | ansible.utils.ipaddr('address') }}	{{ item }}
 {% endfor %}
