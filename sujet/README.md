@@ -42,7 +42,7 @@ Votre fournisseur *Cloud* vous fournit, pour chaque binôme :
  - une file de message [RabbitMQ](https://www.rabbitmq.com)
  - un serveur [Consul](https://www.consul.io)
  - un serveur [Nomad](https://www.nomadproject.io)
- - deux machines virtuelles
+ - trois machines virtuelles (dont une hébergeant le serveur Consul et Nomad)
  - une IP flottante
  - des tunnels HTTP vers vos machines virtuelles et votre IP flottante
 

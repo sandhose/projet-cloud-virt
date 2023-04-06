@@ -40,7 +40,7 @@
   ansible.builtin.template:
     src: per-host.md
     dest: ./instructions/per-host/{{ item }}/mail.md
-  when: "{{ hostvars[item].assigned_to is defined }}"
+  when: "hostvars[item].assigned_to is defined"
   loop: "{{ groups['all'] }}"
 
 - name: Render bastion authorized_keys

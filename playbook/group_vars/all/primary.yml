@@ -16,13 +16,13 @@ instance_groups:
     main_host: dante
     consul_address: 172.16.2.2/16
     floating_address: 172.16.3.2/16
-    members: []
+    members: ["saint-christophe", "universite"]
 
   - name: faubourg-national
     main_host: esplanade
     consul_address: 172.16.2.3/16
     floating_address: 172.16.3.3/16
-    members: []
+    members: ["colonne", "robertsau"]
 
   - name: gare-centrale
     main_host: hautepierre
@@ -34,7 +34,7 @@ instance_groups:
     main_host: krimmeri
     consul_address: 172.16.2.5/16
     floating_address: 172.16.3.5/16
-    members: []
+    members: ["baggersee", "elmerforst"]
 
   - name: jean-jaures
     main_host: langstross
@@ -46,7 +46,7 @@ instance_groups:
     main_host: poteries
     consul_address: 172.16.2.7/16
     floating_address: 172.16.3.7/16
-    members: []
+    members: ["hohwart", "saint-florent"]
 
   - name: montagne-verte
     main_host: rotonde
@@ -58,10 +58,10 @@ instance_groups:
     main_host: schluthfeld
     consul_address: 172.16.2.9/16
     floating_address: 172.16.3.9/16
-    members: []
+    members: ["broglie", "elsau"]
 
   - name: porte-blanche
     main_host: winston-churchill
     consul_address: 172.16.2.10/16
     floating_address: 172.16.3.10/16
-    members: []
+    members: ["boecklin", "landsberg"]

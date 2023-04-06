@@ -1,7 +1,8 @@
 {% set comma = joiner(", ") %}
 {% for member in item.members|default([]) %}{{ comma() }}{{ hostvars[member].assigned_to }}{% endfor %}
 
-[Cloud-Virt] Vos identifiants pour le groupe {{ item.name }}
+
+[Cloud-Virt] Vos identifiants pour le groupe "{{ item.name }}"
 
 Un serveur Consul et un serveur Nomad ont été provisionnés pour vous.
 Cette machine est accessible par SSH :

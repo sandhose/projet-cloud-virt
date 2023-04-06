@@ -1,5 +1,7 @@
 {{ hostvars[item].assigned_to }}
 
+[Cloud-Virt] Vos identifiants pour la machine virtuelle "{{ item }}"
+
 La machine virtuelle {{ item }} vous a été affectée pour le projet de Cloud et Virtualisation.
 
 Votre clé SSH privée :
