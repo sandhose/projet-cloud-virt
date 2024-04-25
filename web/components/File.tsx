@@ -23,9 +23,9 @@ const File: React.FC<Props> = ({ file }) => {
     Math.floor(Math.random() * 1_000_000)
   );
 
-  const { isLoading, error, data } = useQuery<unknown, Error, QueryAnswer>(
-    ["upload", randomId],
-    async () => {
+  const { isLoading, error, data } = useQuery<unknown, Error, QueryAnswer>({
+    queryKey: ["upload", randomId],
+    queryFn: async () => {
       const uploadEndpoint = new URL("/image", backendEndpoint).toString();
       const formData = new FormData();
       formData.append("file", file);
@@ -36,13 +36,11 @@ const File: React.FC<Props> = ({ file }) => {
       const json = await response.json();
       return json;
     },
-    {
-      retry: false,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-    }
-  );
+    retry: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+  });
 
   if (isLoading) {
     return (

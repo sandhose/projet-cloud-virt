@@ -1,9 +1,10 @@
 ---
 - name: "Set authorized key taken from file"
+  loop: "{{ my_groups }}"
   ansible.posix.authorized_key:
     user: '{{ ansible_user }}'
     state: present
-    key: "{{ lookup('file', 'instructions/per-host/' + inventory_hostname + '/id_ecdsa.pub') }}"
+    key: "{{ lookup('file', 'instructions/per-group/' + item.name + '/id_ecdsa.pub') }}"
 
 - name: "Add additional authorized keys"
   ansible.posix.authorized_key:

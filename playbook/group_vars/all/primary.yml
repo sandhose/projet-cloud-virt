@@ -1,67 +1,153 @@
 ---
 instance_groups:
-  - name: aristide-briand
-    main_host: bohrie
-    consul_address: 172.16.2.0/16
-    floating_address: 172.16.3.0/16
-    members: []
+  - name: rouge
+    group_index: 1
+    members:
+      - bulbizarre
+      - herbizarre
+      - florizarre
+    network: 172.16.1.0/24
 
-  - name: emile-mathis
-    main_host: citadelle
-    consul_address: 172.16.2.1/16
-    floating_address: 172.16.3.1/16
-    members: []
+  - name: bleu
+    group_index: 2
+    members:
+      - salameche
+      - reptincel
+      - dracaufeu
+    network: 172.16.2.0/24
 
-  - name: etoile-bourse
-    main_host: dante
-    consul_address: 172.16.2.2/16
-    floating_address: 172.16.3.2/16
-    members: ["saint-christophe", "universite"]
+  - name: jaune
+    group_index: 3
+    members:
+      - carapuce
+      - carabaffe
+      - tortank
+    network: 172.16.3.0/24
 
-  - name: faubourg-national
-    main_host: esplanade
-    consul_address: 172.16.2.3/16
-    floating_address: 172.16.3.3/16
-    members: ["colonne", "robertsau"]
+  - name: or
+    group_index: 4
+    members:
+      - chenipan
+      - chrysacier
+      - papilusion
+    network: 172.16.4.0/24
 
-  - name: gare-centrale
-    main_host: hautepierre
-    consul_address: 172.16.2.4/16
-    floating_address: 172.16.3.4/16
-    members: []
+  - name: argent
+    group_index: 5
+    members:
+      - aspicot
+      - coconfort
+      - dardargnan
+    network: 172.16.5.0/24
 
-  - name: homme-de-fer
-    main_host: krimmeri
-    consul_address: 172.16.2.5/16
-    floating_address: 172.16.3.5/16
-    members: ["baggersee", "elmerforst"]
+  - name: cristal
+    group_index: 6
+    members:
+      - roucool
+      - roucoups
+      - roucarnage
+    network: 172.16.6.0/24
 
-  - name: jean-jaures
-    main_host: langstross
-    consul_address: 172.16.2.6/16
-    floating_address: 172.16.3.6/16
-    members: []
+  - name: rubis
+    group_index: 7
+    members:
+      - mystherbe
+      - ortide
+      - rafflesia
+    network: 172.16.7.0/24
 
-  - name: les-halles
-    main_host: poteries
-    consul_address: 172.16.2.7/16
-    floating_address: 172.16.3.7/16
-    members: ["hohwart", "saint-florent"]
+  - name: saphir
+    group_index: 8
+    members:
+      - ptitard
+      - tetarte
+      - tartard
+    network: 172.16.8.0/24
 
-  - name: montagne-verte
-    main_host: rotonde
-    consul_address: 172.16.2.8/16
-    floating_address: 172.16.3.8/16
-    members: []
+  - name: emeraude
+    group_index: 9
+    members:
+      - abra
+      - kadabra
+      - alakazam
+    network: 172.16.9.0/24
 
-  - name: pont-phario
-    main_host: schluthfeld
-    consul_address: 172.16.2.9/16
-    floating_address: 172.16.3.9/16
-    members: ["broglie", "elsau"]
+  - name: diamant
+    group_index: 10
+    members:
+      - machoc
+      - machopeur
+      - mackogneur
+    network: 172.16.10.0/24
 
-  - name: porte-blanche
-    main_host: winston-churchill
-    consul_address: 172.16.2.10/16
-    floating_address: 172.16.3.10/16
-    members: ["boecklin", "landsberg"]
+  - name: ecarlate
+    group_index: 11
+    members:
+      - chetiflor
+      - boustiflor
+      - empiflor
+    network: 172.16.11.0/24
+
+  - name: perle
+    group_index: 12
+    members:
+      - racaillou
+      - gravalanch
+      - grolem
+    network: 172.16.12.0/24
+
+  - name: platine
+    group_index: 13
+    members:
+      - germignon
+      - macronium
+      - meganium
+    network: 172.16.13.0/24
+
+  - name: noire
+    group_index: 14
+    members:
+      - hericendre
+      - feurisson
+      - typhlosion
+    network: 172.16.14.0/24
+
+  - name: blanche
+    group_index: 15
+    members:
+      - kaiminus
+      - crocrodil
+      - aligatueur
+    network: 172.16.15.0/24
+
+  - name: epee
+    group_index: 16
+    members:
+      - arcko
+      - massko
+      - jungko
+    network: 172.16.16.0/24
+
+  - name: bouclier
+    group_index: 17
+    members:
+      - poussifeu
+      - galifeu
+      - brasegali
+    network: 172.16.17.0/24
+
+  - name: soleil
+    group_index: 18
+    members:
+      - gobou
+      - flobio
+      - laggron
+    network: 172.16.18.0/24
+
+  - name: lune
+    group_index: 19
+    members:
+      - tiplouf
+      - prinplouf
+      - pingoleon
+    network: 172.16.19.0/24

@@ -4,6 +4,14 @@
   roles:
     - role: instructions
 
+- hosts: gateway
+  tags: ["vpn"]
+  roles:
+    - role: artis3n.tailscale
+      vars:
+        tailscale_authkey: "{{ tailscale_authkey }}"
+        tailscale_args: "--advertise-routes=192.168.70.0/24 --ssh --hostname={{ inventory_hostname }}"
+
 - hosts: all
   tags: ["base"]
   roles:

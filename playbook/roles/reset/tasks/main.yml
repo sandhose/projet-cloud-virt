@@ -41,10 +41,10 @@
 - name: "Prune everything in the Docker daemon"
   community.docker.docker_prune:
     containers: yes
-    images: yes
+    images: no
     networks: yes
     volumes: yes
-    builder_cache: yes
+    builder_cache: no
 
 - name: "Umount all tmpfs"
   ansible.builtin.command:
@@ -61,6 +61,7 @@
     state: directory
     owner: nomad
     group: nomad
+    recurse: yes
 
 - name: "Delete Consul state directory"
   ansible.builtin.file:

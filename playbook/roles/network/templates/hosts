@@ -11,6 +11,8 @@ ff02::2 ip6-allrouters
 ff02::3 ip6-allhosts
 
 # VMs
-{% for item in groups['all'] -%}
-{{ hostvars[item].vxlan_interface_address | ansible.utils.ipaddr('address') }}	{{ item }}
+{% for vxlan in vxlans %}
+{% for member in vxlan.members %}
+{{ vxlan.network | ansible.utils.nthhost(hostvars[member].host_index) }} {{ member }}
+{% endfor %}
 {% endfor %}

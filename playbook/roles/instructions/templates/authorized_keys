@@ -1,6 +1,6 @@
 {% for key in additional_authorized_keys %}
 {{ key }}
 {% endfor %}
-{% for host in groups['all'] %}
-{{ lookup('file', 'instructions/per-host/' + host + '/id_ecdsa.pub') }}
+{% for group in instance_groups %}
+{{ lookup('file', 'instructions/per-group/' + group.name + '/id_ecdsa.pub') }}
 {% endfor %}

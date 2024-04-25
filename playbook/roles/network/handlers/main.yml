@@ -1,5 +1,6 @@
 ---
 - name: Restart systemd-networkd
+  throttle: 2
   ansible.builtin.systemd:
     name: systemd-networkd.service
     state: restarted

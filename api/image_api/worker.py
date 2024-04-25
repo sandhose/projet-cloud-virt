@@ -1,16 +1,22 @@
 import enum
 import random
+from opentelemetry.instrumentation.celery import CeleryInstrumentor
 from io import BytesIO
 from PIL import Image
 from celery import Celery
+from celery.signals import worker_process_init
 
 from .storage import bucket
 
+
+@worker_process_init.connect(weak=False)
+def init_celery_tracing(*args, **kwargs):
+    CeleryInstrumentor().instrument()
+
 app = Celery(__name__, config_source="config.celery")
 
-
 class Sizes(enum.IntEnum):
-    Original = 1e10
+    Original = 10_000_000
     Big = 1024
     Medium = 512
     Small = 256
@@ -42,7 +48,7 @@ def resize_image(key: str, size: Sizes):
     bytes = obj["Body"].read()
     img = Image.open(BytesIO(bytes))
     # Resize it
-    img.thumbnail((int(size), int(size)), Image.ANTIALIAS)
+    img.thumbnail((int(size), int(size)))
 
     # Save it
     buffer = BytesIO()

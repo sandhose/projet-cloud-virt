@@ -11,9 +11,9 @@ bind_addr = "0.0.0.0"
 
 advertise {
   # We explicitely advertise the IP on the vxlan interface
-  http = "{{ vxlan_interface_address | ansible.utils.ipaddr('address') }}"
-  rpc = "{{ vxlan_interface_address | ansible.utils.ipaddr('address') }}"
-  serf = "{{ vxlan_interface_address | ansible.utils.ipaddr('address') }}"
+  http = "{{ main_instance_group.network | ansible.utils.ipaddr(host_index) | ansible.utils.ipaddr('address') }}"
+  rpc = "{{ main_instance_group.network | ansible.utils.ipaddr(host_index) | ansible.utils.ipaddr('address') }}"
+  serf = "{{ main_instance_group.network | ansible.utils.ipaddr(host_index) | ansible.utils.ipaddr('address') }}"
 }
 
 # This node is a server, and expects to be the only server in the cluster
@@ -30,4 +30,13 @@ client {
 # Connect to the local Consul agent
 consul {
   address = "127.0.0.1:8500"
+}
+
+# Show the UI and link to the Consul UI
+ui {
+  enabled = true
+
+  consul {
+    ui_url = "https://{{ main_instance_group.name }}.consul.100do.se/ui"
+  }
 }

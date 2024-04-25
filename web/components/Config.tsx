@@ -11,9 +11,9 @@ type DynamicConfig = {
 };
 
 const Config: React.FC<Props> = ({ children }) => {
-  const { isLoading, error, data } = useQuery<unknown, Error, DynamicConfig>(
-    ["config"],
-    async () => {
+  const { isLoading, error, data } = useQuery<unknown, Error, DynamicConfig>({
+    queryKey: ["config"],
+    queryFn: async () => {
       const configUrl = new URL(
         "/config.json",
         window.location.href
@@ -23,13 +23,11 @@ const Config: React.FC<Props> = ({ children }) => {
       const json = await response.json();
       return json;
     },
-    {
-      retry: false,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-      refetchOnWindowFocus: false,
-    }
-  );
+    retry: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchOnWindowFocus: false,
+  });
 
   if (isLoading) {
     return <div>Loading…</div>;

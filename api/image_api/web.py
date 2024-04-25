@@ -4,6 +4,7 @@ from flask_cors import CORS
 from email.utils import formatdate
 from botocore.exceptions import ClientError
 from urllib.parse import unquote
+from opentelemetry.instrumentation.flask import FlaskInstrumentor
 
 from .storage import s3, bucket
 from .utils import random_id, valid_id
@@ -15,6 +16,7 @@ if bucket.creation_date is None:
     bucket.create()
 
 app = Flask(__name__)
+FlaskInstrumentor().instrument_app(app)
 CORS(app)
 
 
@@ -79,7 +81,7 @@ def stream_image(id: str, size: Sizes):
         args["IfModifiedSince"] = if_modified_since
 
     try:
-        obj = bucket.Object(f"{size.segment}/{id}").get(**args)
+        obj = bucket.Object(f"{size.segment}/{id}").get(**args) # type: ignore
     except s3.meta.client.exceptions.NoSuchKey:
         # If the key was not found, return a 404
         return "not found", 404
@@ -93,12 +95,12 @@ def stream_image(id: str, size: Sizes):
 
     res = app.response_class(obj["Body"], mimetype=obj["ContentType"])
     # Forward a few headers from the GetObject response
-    res.headers["Content-Length"] = obj["ContentLength"]
-    res.headers["ETag"] = obj["ETag"]
-    res.headers["Last-Modified"] = formatdate(
+    res.headers.add("Content-Length", str(obj["ContentLength"]))
+    res.headers.add("ETag", obj["ETag"])
+    res.headers.add("Last-Modified", formatdate(
         obj["LastModified"].timestamp(), usegmt=True
-    )
-    res.headers["Cache-Control"] = "public"
+    ))
+    res.headers.add("Cache-Control", "public")
 
     return res
 

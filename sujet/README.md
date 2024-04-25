@@ -30,7 +30,6 @@ Vous trouverez dans ce dépôt :
  - le code du *frontend* dans le sous-dossier `web/`
  - ce sujet dans le sous-dossier `sujet/`
  - (pour information) le *playbook* [Ansible](https://docs.ansible.com/ansible/latest/index.html) utilisé pour provisionner les machines virtuelles fournies par votre fournisseur *Cloud* dans le sous-dossier `playbook/`
- - (pour information) le projet [Terraform](https://www.terraform.io) utilisé pour provisionner différentes resources de votre fournisseur *Cloud* dans le sous-dossier `terraform/`
 
 Chacun de ces sous-dossier a un fichier `README.md` expliquant certains détails de leur fonctionnement.
 
@@ -50,27 +49,32 @@ Votre fournisseur *Cloud* vous fournit, pour chaque binôme :
 
 Les machines virtuelles sont accessibles par SSH via un hôte bastion, accessible depuis le réseau de l'université, donc connecté au wifi de l'université ou via le VPN : <https://documentation.unistra.fr/Catalogue/Infrastructures-reseau/osiris/VPN/co/guide.html>
 
-Le bastion est accessible par SSH à `student@185.155.93.67`.
+Le bastion est accessible par SSH à `student@bastion.100do.se`.
 Vous devriez pouvoir accéder à votre machine virtuelle par SSH de cette manière :
 
 ```sh
-ssh -J student@185.155.93.67 ubuntu@192.168.70.XXX
+ssh -J student@bastion.100do.se ubuntu@<nom-de-la-vm>.internal.100do.se
 ```
 
 Pour simplifier l'accès, vous pouvez ajouter à votre fichier de configuration SSH (`~/.ssh/config`) la section suivante:
 
 ```sshconfig
 Host bastion-cloud
-	Hostname 185.155.93.67
+	Hostname bastion.100do.se
 	User student
 
 Host <nom-de-la-vm-1>
-	Hostname 192.168.70.<vm-1>
+	Hostname <nom-de-la-vm-1>.internal.100do.se
 	User ubuntu
 	ProxyJump bastion-cloud
 
 Host <nom-de-la-vm-2>
-	Hostname 192.168.70.<vm-2>
+	Hostname <nom-de-la-vm-2>.internal.100do.se
+	User ubuntu
+	ProxyJump bastion-cloud
+
+Host <nom-de-la-vm-3>
+	Hostname <nom-de-la-vm-3>.internal.100do.se
 	User ubuntu
 	ProxyJump bastion-cloud
 ```
@@ -81,16 +85,16 @@ Les informations de connexion vous ont été envoyées individuellement par mail
 
 ## Réseau des machines virtuelles
 
-Il existe sur toutes les machines virtuelles un tunnel VXLAN offrant un réseau privé au niveau 2 entre elles.
-Vous trouverez la définition de ce tunnel (interface `vxlan100`) dans le dossier `/etc/systemd/network/`.
+Il existe sur toutes vos machines virtuelles un tunnel VXLAN offrant un réseau privé au niveau 2 entre elles.
+Vous trouverez la définition de ce tunnel (interface `vxlan$N` où `$N` est votre numéro de groupe) dans le dossier `/etc/systemd/network/`.
 
-Chaque machine virtuelle a une IP dans ce réseau (`172.16.1.X/16`).
-Chaque groupe dispose d'une IP flottante qui peut être assignée dynamiquement à l'une de vos machine virtuelle (`172.16.3.X/16`).
+Chaque machine virtuelle a une IP dans ce réseau (`172.16.$N.0/24`).
+Chaque groupe dispose d'une IP flottante qui peut être assignée dynamiquement à l'une de vos machine virtuelle (`172.16.$N.110/24`).
 
-Pour assigner l'IP virtuelle, vous pouvez simplement l'ajouter à l'interface (`ip address add dev vxlan100 172.16.3.X/16`), ou utiliser un outil tel que [`keepalived`](https://www.redhat.com/sysadmin/keepalived-basics) pour l'ajouter dynamiquement à l'une des machine virtuelle.
+Pour assigner l'IP virtuelle, vous pouvez simplement l'ajouter à l'interface (`ip address add dev vxlan$N 172.16.$N.110/24`), ou utiliser un outil tel que [`keepalived`](https://www.redhat.com/sysadmin/keepalived-basics) pour l'ajouter dynamiquement à l'une des machine virtuelle.
 
 **Attention :** cette interface n'a pas la route par défaut.
-Consul et Nomad par défaut annoncent l'IP de l'interface où se trouve la route par défaut, donc assurez vous qu'ils annoncent l'IP de l'interface `vxlan100` lorsque vous les configurerez.
+Consul et Nomad par défaut annoncent l'IP de l'interface où se trouve la route par défaut, donc assurez vous qu'ils annoncent l'IP de l'interface `vxlan$N` lorsque vous les configurerez.
 
 ## Tunnels HTTP(S)
 
@@ -98,10 +102,10 @@ Votre fournisseur de *Cloud* a mis en place des proxy HTTP(S) vers votre IP flot
 
 Ainsi :
 
- - `https://<vm>.100do.se/` et `http://*.<vm>.100do.se/` transmet le traffic vers l'IP de la machine virtuelle sur le port `8080`.
-   Par exemple, `https://bohrie.100do.se/` proxy vers `http://172.16.1.3:8080/`.
- - `https://<groupe>.100do.se/` et `http://*.<groupe>.100do.se/` transmet le traffic vers l'IP flottante du groupe sur le port `8081`.
-   Par exemple, `https://astride-briand.100do.se/` proxy vers `http://172.16.3.0:8081/`.
+ - `https://<vm>.100do.se/` et `http://*<vm>.100do.se/` transmet le traffic vers l'IP de la machine virtuelle sur le port `8080`.
+   Par exemple, `https://bulbizarre.100do.se/` proxy vers `http://172.16.1.100:8080/`.
+ - `https://<groupe>.100do.se/` et `http://*<groupe>.100do.se/` transmet le traffic vers l'IP flottante du groupe sur le port `8081`.
+   Par exemple, `https://rouge.100do.se/` proxy vers `http://172.16.1.110:8081/`.
 
 ## File de message
 
@@ -127,20 +131,23 @@ Chaque groupe a une paire d'identifiants (*access key id* et *secret access key*
 
 ## Consul et Nomad
 
-Votre fournisseur *Cloud* héberge pour chaque binôme un *cluster* [Consul](https://learn.hashicorp.com/tutorials/consul/get-started?in=consul/getting-started#architecture-overview) et un *cluster* [Nomad](https://learn.hashicorp.com/tutorials/nomad/get-started-intro?in=nomad/get-started).
+Votre fournisseur *Cloud* a déployé pour vous un serveur [Consul](https://learn.hashicorp.com/tutorials/consul/get-started?in=consul/getting-started#architecture-overview) et un serveur [Nomad](https://learn.hashicorp.com/tutorials/nomad/get-started-intro?in=nomad/get-started) sur l'une de vos machines virtuelles.
 
 Ils sont accessibles sous :
 
- - `https://consul-<groupe>.100do.se/` pour Consul
- - `https://nomad-<groupe>.100do.se/` pour Nomad
+ - `https://<groupe>.consul.100do.se/` pour Consul
+ - `https://<groupe>.nomad.100do.se/` pour Nomad
 
 En interne, ils sont accessibles via le nom d'hôte `<groupe>.internal.100do.se`.
 
-Ces clusters n'ont pas de client.
-Autrement dit, ils ne vous permettent pas tels quels d'exécuter des *jobs* Nomad.
-Votre but est de configurer sur chacune de vos machines virtuelles l'agent Consul et le client Nomad, et de les faire rejoindre le *cluster*.
+**Vous n'êtes pas obligé d'utiliser Consul et/ou Nomad!**
+L'essentiel est que l'application fonctionne correctement.
 
-Sur vos machines virtuelles, Nomad et Consul sont installés, mais pas configurés.
+Ce serveur n'a pas de client.
+Autrement dit, ils ne vous permettent pas tels quels d'exécuter des *jobs* Nomad.
+Si vous comptez utiliser Nomad, votre but sera donc de configurer sur chacune de vos machines virtuelles l'agent Consul et le client Nomad, et de les faire rejoindre le *cluster*.
+
+Sur vos machines virtuelles, Nomad et Consul sont installés, mais pas configurés (à l'exception de l'une d'entre elles).
 
 Consul lit sa configuration dans `/etc/consul.d/consul.hcl`.
 Il stocke ses données (option `-data-dir`) dans `/opt/consul`.
@@ -154,7 +161,7 @@ La définition du service se trouve dans `/etc/systemd/service/nomad.service`.
 
 **Attention à la configuration réseau de Nomad et Consul !**
 Par défaut, ces deux services annoncent auprès du *cluster* l'IP de l'interface réseau ayant la route par défaut.
-Dans votre cas, vous **devez** les configurer pour qu'ils annoncent l'adresse de l'interface `vxlan100`.
+Dans votre cas, vous **devez** les configurer pour qu'ils annoncent l'adresse de l'interface `vxlan$N`.
 
 ## Registre d'images de conteneurs
 
@@ -168,7 +175,7 @@ Vous pouvez cependant vous tourner vers des options gratuites telles que :
 
 # Modalité de rendu et critères d'évaluation
 
-Le projet est volontairement libre sur la manière de déployer cette application.
+Le projet est volontairement souple sur la manière de déployer cette application.
 Par exemple, vous n'êtes pas obligés d'utiliser Nomad ou même Docker pour tous les composants de votre déploiement.
 
 Vous expliquerez dans **un rapport** le fonctionnement de votre déploiement, et justifirez vos choix.

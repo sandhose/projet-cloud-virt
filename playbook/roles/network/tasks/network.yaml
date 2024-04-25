@@ -1,0 +1,35 @@
+---
+- name: "Set variables"
+  ansible.builtin.set_fact:
+    vxlan_vni: "{{ group.group_index + 100 }}"
+    vxlan_interface_name: "vxlan{{ group.group_index }}"
+    vxlan_interface_address: "{{ group.network | ansible.utils.ipaddr(host_index) }}"
+
+- name: "Additional addresses for main host"
+  when: is_main_instance
+  ansible.builtin.set_fact:
+    vxlan_extra_addresses: 
+      - '{{ group.network | ansible.utils.ipaddr(120) }}'
+
+- name: "Setup the VXLAN interface"
+  ansible.builtin.template:
+    src: "vxlan.netdev"
+    dest: /etc/systemd/network/{{ vxlan_interface_name }}.netdev
+  notify: Restart systemd-networkd
+
+- name: "Setup the VXLAN network"
+  ansible.builtin.template:
+    src: "vxlan.network"
+    dest: /etc/systemd/network/{{ vxlan_interface_name }}.network
+  notify: Restart systemd-networkd
+
+- name: "Create the drop-in configuration folder for the public interface"
+  ansible.builtin.file:
+    path: /etc/systemd/network/{{ vxlan_local_interface_config }}.d
+    state: directory
+
+- name: "Attach the VXLAN to the public interface"
+  ansible.builtin.template:
+    src: "attach-vxlan.conf"
+    dest: /etc/systemd/network/{{ vxlan_local_interface_config }}.d/attach-{{ vxlan_interface_name }}.conf
+  notify: Restart systemd-networkd
