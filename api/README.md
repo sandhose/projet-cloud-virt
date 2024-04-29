@@ -45,7 +45,7 @@ export S3_BUCKET_NAME=images
 poetry run app
 
 # Run the celery worker
-poetry run celery worker --app image_api.worker.app
+poetry run celery --app image_api.worker.app worker 
 
 # Upload an image
 curl -X POST \
@@ -83,7 +83,7 @@ See <https://flask.palletsprojects.com/en/2.1.x/deploying/wsgi-standalone/>
 ### Run the worker
 
 ```sh
-celery worker --app image_api.worker.app
+celery --app image_api.worker.app worker 
 ```
 
 See <https://docs.celeryq.dev/en/stable/userguide/workers.html>
