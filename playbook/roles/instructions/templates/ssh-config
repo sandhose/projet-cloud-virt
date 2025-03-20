@@ -1,8 +1,0 @@
-Host bastion-cloud
-  Hostname bastion.100do.se
-  User student
-
-Host {{ groups['all'] | join(' ') }}
-  Hostname %h.internal.100do.se
-  User ubuntu
-  ProxyJump bastion-cloud

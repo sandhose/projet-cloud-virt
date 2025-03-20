@@ -1,14 +1,28 @@
 ---
+- name: "Enable IPv4 forwarding"
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    state: present
+    reload: yes
+
+- name: "Enable IPv6 forwarding"
+  ansible.posix.sysctl:
+    name: net.ipv6.conf.all.forwarding
+    value: "1"
+    state: present
+    reload: yes
+
 - name: "Set authorized key taken from file"
   loop: "{{ my_groups }}"
   ansible.posix.authorized_key:
-    user: '{{ ansible_user }}'
+    user: "{{ ansible_user }}"
     state: present
     key: "{{ lookup('file', 'instructions/per-group/' + item.name + '/id_ecdsa.pub') }}"
 
 - name: "Add additional authorized keys"
   ansible.posix.authorized_key:
-    user: '{{ ansible_user }}'
+    user: "{{ ansible_user }}"
     state: present
     key: "{{ item }}"
   loop: "{{ additional_authorized_keys }}"
@@ -21,12 +35,12 @@
 
 - name: "Remove stock private key"
   ansible.builtin.file:
-    path: '/home/{{ ansible_user }}/private.pem'
+    path: "/home/{{ ansible_user }}/private.pem"
     state: absent
 
 - name: "Remove stock authorized key"
   ansible.posix.authorized_key:
-    user: '{{ ansible_user }}'
+    user: "{{ ansible_user }}"
     state: absent
     key: "{{ key_to_remove }}"
 

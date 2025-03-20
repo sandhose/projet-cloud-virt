@@ -15,10 +15,7 @@ def valid_id(id: str) -> bool:
     if len(id) != id_length:
         return False
 
-    if any(c not in alphabet for c in id):
-        return False
-
-    return True
+    return all(c in alphabet for c in id)
 
 
 __all__ = ["random_id", "valid_id"]

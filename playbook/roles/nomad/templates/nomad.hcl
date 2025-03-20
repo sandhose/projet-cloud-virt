@@ -3,6 +3,9 @@
 # Group name
 datacenter = "{{ main_instance_group.name }}"
 
+# Node name
+name = "{{ inventory_hostname }}"
+
 # Save the persistent data to /opt/nomad
 data_dir = "/opt/nomad"
 

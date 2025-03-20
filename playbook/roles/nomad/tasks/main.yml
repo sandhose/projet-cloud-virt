@@ -14,6 +14,14 @@
     shell: /bin/false
     state: present
 
+- name: "Set the home permissions right"
+  ansible.builtin.file:
+    path: /opt/nomad
+    owner: nomad
+    group: nomad
+    state: directory
+    recurse: yes
+
 - name: "Create Nomad configuration directory"
   ansible.builtin.file:
     path: /etc/nomad.d/
@@ -33,6 +41,7 @@
 - ansible.builtin.meta: flush_handlers
 
 - name: "Enable and start Nomad"
+  when: is_server
   ansible.builtin.systemd:
     name: nomad.service
     enabled: true

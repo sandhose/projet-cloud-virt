@@ -23,13 +23,13 @@ The easiest way to try the API locally is to use [Poetry](https://python-poetry.
 
 ```sh
 # Install Poetry
-curl -sSL https://install.python-poetry.org | python3 -
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Install dependencies
-poetry install
+uv sync
 
 # Run a Redis server via Docker
-docker run -d -p 6379:6379 --rm --name redis redis:6.2
+docker run -d -p 6379:6379 --rm --name redis redis:7.4
 
 # Run a Minio instance via Docker
 docker run -d -p 9000:9000 -p 9001:9001 --rm --name minio quay.io/minio/minio server /data --console-address ":9001"
@@ -42,10 +42,10 @@ export AWS_SECRET_ACCESS_KEY=minioadmin
 export S3_BUCKET_NAME=images
 
 # Run the dev. web server
-poetry run app
+uv run image-api
 
 # Run the celery worker
-poetry run celery --app image_api.worker.app worker 
+uv run celery --app image_api.worker.app worker
 
 # Upload an image
 curl -X POST \
@@ -60,7 +60,7 @@ curl -X POST \
 Requires Python `>=3.9`.
 
 ```sh
-pip install .
+uv sync --no-dev --locked
 ```
 
 ### Run the web server
@@ -72,10 +72,10 @@ Example with `gunicorn`:
 
 ```sh
 # Install gunicorn
-pip install gunicorn
+uv pip install gunicorn
 
 # Run gunicorn with 4 threads on port 8080
-gunicorn --workers 4 --bind 0.0.0.0:8080 image_api.web:app
+uv run --no-dev gunicorn --workers 4 --bind 0.0.0.0:8080 image_api.web:app
 ```
 
 See <https://flask.palletsprojects.com/en/2.1.x/deploying/wsgi-standalone/>
@@ -83,7 +83,7 @@ See <https://flask.palletsprojects.com/en/2.1.x/deploying/wsgi-standalone/>
 ### Run the worker
 
 ```sh
-celery --app image_api.worker.app worker 
+uv run --no-dev celery --app image_api.worker.app worker
 ```
 
 See <https://docs.celeryq.dev/en/stable/userguide/workers.html>

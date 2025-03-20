@@ -2,7 +2,7 @@
 
 Requirements:
 
-- NodeJS: https://nodejs.org/en/ (`node` and `npm` commands)
+- NodeJS 20 or later: https://nodejs.org/en/
 
 ## Configuration
 
@@ -16,7 +16,7 @@ npm install # install dependencies
 npm run dev # start the development environment
 ```
 
-And navigate to <http://localhost:3000/>
+And navigate to <http://localhost:5173/>
 
 This environment automatically reloads when files are edited.
 
@@ -24,8 +24,8 @@ This environment automatically reloads when files are edited.
 
 ```sh
 npm ci # install dependencies
-npm run build # create an optimized build for production
-npm run start # serve the built version
+npm run build # build the app to the `dist/` folder
+npm run start # serve the files in the `dist/` folder
 ```
 
 And navigate to <http://localhost:3000/>

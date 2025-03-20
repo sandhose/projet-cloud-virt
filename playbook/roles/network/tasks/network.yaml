@@ -8,8 +8,8 @@
 - name: "Additional addresses for main host"
   when: is_main_instance
   ansible.builtin.set_fact:
-    vxlan_extra_addresses: 
-      - '{{ group.network | ansible.utils.ipaddr(120) }}'
+    vxlan_extra_addresses:
+      - "{{ group.network | ansible.utils.ipaddr(120) }}"
 
 - name: "Setup the VXLAN interface"
   ansible.builtin.template:

@@ -4,16 +4,6 @@
     name: "{{ inventory_hostname }}.internal.100do.se"
     use: "systemd"
 
-- name: "Remove the old vxlan definitions"
-  ansible.builtin.file:
-    path: "/etc/systemd/network/{{ item }}"
-    state: absent
-  loop:
-    - vxlan.network
-    - vxlan.netdev
-    - "{{ vxlan_local_interface_config }}.d/attach-vxlan.conf"
-  notify: Restart systemd-networkd
-
 - name: "Setup the vxlans membership variables"
   ansible.builtin.set_fact:
     vxlans: "{{ all_vxlans | ternary(instance_groups, my_groups) }}"

@@ -5,15 +5,8 @@
 /.pnp
 .pnp.js
 
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
 # production
-/build
+/dist/
 
 # misc
 .DS_Store
@@ -27,9 +20,6 @@ yarn-error.log*
 
 # local env files
 .env*.local
-
-# vercel
-.vercel
 
 # typescript
 *.tsbuildinfo

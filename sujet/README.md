@@ -18,7 +18,7 @@ Le backend utilise la bibliothèque Python [*Celery*](https://docs.celeryq.dev/e
 
 Tous ces composants sont *scalables* horizontalement : plusieurs instances du *backend*, du *worker* ou du *frontend* peuvent cohéxister et se partager la charge.
 
-Le code de l'application est disponible à ces trois adresses (pour simplifier le *fork* du dépôt) : 
+Le code de l'application est disponible à ces trois adresses (pour simplifier le *fork* du dépôt) :
 
  - <https://github.com/sandhose/projet-cloud-virt>
  - <https://git.unistra.fr/qgliech/projet-cloud-virt>
@@ -35,13 +35,13 @@ Chacun de ces sous-dossier a un fichier `README.md` expliquant certains détails
 
 # Détails de l'infrastructure
 
-Votre fournisseur *Cloud* vous fournit, pour chaque binôme : 
+Votre fournisseur *Cloud* vous fournit, pour chaque binôme :
 
  - du stockage type S3
  - une file de message [RabbitMQ](https://www.rabbitmq.com)
  - un serveur [Consul](https://www.consul.io)
  - un serveur [Nomad](https://www.nomadproject.io)
- - trois machines virtuelles (dont une hébergeant le serveur Consul et Nomad)
+ - trois machines virtuelles (dont une pré-configurée hébergeant le serveur Consul et Nomad)
  - une IP flottante
  - des tunnels HTTP vers vos machines virtuelles et votre IP flottante
 

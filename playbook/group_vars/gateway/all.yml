@@ -1,4 +1,4 @@
 ---
-cloudflared_tunnel_uuid: 848e7ecb-1e34-49f6-8ce8-1d32561307fd
+cloudflared_tunnel_token: "{{ vault_cloudflared_tunnel_token }}"
 all_vxlans: true
 vxlan_dns: false

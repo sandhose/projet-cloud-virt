@@ -1,6 +1,0 @@
-{% for key in additional_authorized_keys %}
-{{ key }}
-{% endfor %}
-{% for group in instance_groups %}
-{{ lookup('file', 'instructions/per-group/' + group.name + '/id_ecdsa.pub') }}
-{% endfor %}

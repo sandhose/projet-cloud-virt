@@ -1,10 +1,10 @@
 import enum
-import random
-from opentelemetry.instrumentation.celery import CeleryInstrumentor
 from io import BytesIO
-from PIL import Image
+
 from celery import Celery
 from celery.signals import worker_process_init
+from opentelemetry.instrumentation.celery import CeleryInstrumentor
+from PIL import Image
 
 from .storage import bucket
 
@@ -13,7 +13,9 @@ from .storage import bucket
 def init_celery_tracing(*args, **kwargs):
     CeleryInstrumentor().instrument()
 
+
 app = Celery(__name__, config_source="config.celery")
+
 
 class Sizes(enum.IntEnum):
     Original = 10_000_000

@@ -1,15 +1,15 @@
+from email.utils import formatdate
+from urllib.parse import unquote
+
+from botocore.exceptions import ClientError
 from celery.canvas import group
 from flask import Flask, request, url_for
 from flask_cors import CORS
-from email.utils import formatdate
-from botocore.exceptions import ClientError
-from urllib.parse import unquote
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 
-from .storage import s3, bucket
+from .storage import bucket, s3
 from .utils import random_id, valid_id
 from .worker import Sizes, resize_image
-
 
 # Create the bucket if it does not exist
 if bucket.creation_date is None:
@@ -81,7 +81,7 @@ def stream_image(id: str, size: Sizes):
         args["IfModifiedSince"] = if_modified_since
 
     try:
-        obj = bucket.Object(f"{size.segment}/{id}").get(**args) # type: ignore
+        obj = bucket.Object(f"{size.segment}/{id}").get(**args)  # type: ignore
     except s3.meta.client.exceptions.NoSuchKey:
         # If the key was not found, return a 404
         return "not found", 404
@@ -97,9 +97,9 @@ def stream_image(id: str, size: Sizes):
     # Forward a few headers from the GetObject response
     res.headers.add("Content-Length", str(obj["ContentLength"]))
     res.headers.add("ETag", obj["ETag"])
-    res.headers.add("Last-Modified", formatdate(
-        obj["LastModified"].timestamp(), usegmt=True
-    ))
+    res.headers.add(
+        "Last-Modified", formatdate(obj["LastModified"].timestamp(), usegmt=True)
+    )
     res.headers.add("Cache-Control", "public")
 
     return res
@@ -140,8 +140,10 @@ def health():
     """Simple healtcheck route to check the service is running properly"""
     return "ok"
 
+
 def dev():
     app.run(host="0.0.0.0", port=8080, debug=True, use_reloader=False)
+
 
 if __name__ == "__main__":
     # When the script is being run standalone, start the Flask debug server
